@@ -12,6 +12,7 @@
     Response: 201 Created if successful, or 400 Bad Request if the username already exists.
     Example: POST http://localhost:3000/signup
 
+
   2. POST /login - User Login
     Description: Gets user back their details like firstname, lastname and id
     Request Body: JSON object with username and password fields.
@@ -33,5 +34,66 @@ const express = require("express")
 const PORT = 3000;
 const app = express();
 // write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
+const {v4: uuid4} =  require("uuid");
+const bodyParser = require("body-parser");
+const arr = []
+
+
+app.use(bodyParser.json());
+
+app.post("/signup",(req,res)=>{
+  arr.forEach((el)=>{
+    if(el.username == req.body.username){
+      res.status(400).send("user lready exists");
+    }
+  })
+
+  const temp = {
+    "uid": uuid4(),
+    "username": req.body.username,
+    "password": req.body.password,
+    "first_name":req.body.firstname,
+    "last_name": req.body.lastname
+  }
+  arr.push(temp)
+  res.status(200).send(temp)
+
+});
+
+app.get("/login",(req,res)=>{
+  let un = req.body.username;
+  arr.forEach((el)=>{
+    if(el.username == un){
+      if(el.password == req.body.password){
+        let tempobj = {
+          "firstname": el.first_name,
+          "lastname": el.last_name,
+          "uid": el.uid,
+          "token": uuid4()
+        }
+        res.status(200).send(tempobj)
+      }
+    }
+  })
+  res.status(401).send("username and password are invalid")
+})
+
+app.get("/data",(req,res)=>{
+  res.send(arr)
+})
+
+app.get("/*",(req,res)=>{
+  res.send("error idiot");
+})
+
+app.listen(3000,(req,res)=>{
+  console.log("ser started at port 3000")
+})
+
+
+
+
+
+
 
 module.exports = app;

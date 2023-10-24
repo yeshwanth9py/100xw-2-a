@@ -21,5 +21,44 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
+app.get("/files", (req,res)=>{
+  const newlist = []
+  console.log("hbhbh",path.join(__dirname,"files"))
+  fs.readdir(path.join(__dirname,"files"),(err,files)=>{
+    if(err){
+      console.log('err reading files')
+    }
+    else{
+      //files is already a list
+      res.send(files)
+    }
+  })
+})
+
+
+app.get("/file/:filename",(req,res)=>{
+  console.log(req.params);
+  //params vs query
+  fs.readFile(path.join(__dirname,"files",req.params.filename),"utf-8",(err,data)=>{
+    if(err){
+      res.status(404).send("file not found");
+    }
+    else{
+      res.send(data);
+    }
+  })
+})
+
+app.use((req,res,next)=>{
+  res.send("file not found");
+})
+
+app.listen(3000,(req,res)=>{
+  console.log("server started at port 3000")
+});
+
+
+
+
 
 module.exports = app;

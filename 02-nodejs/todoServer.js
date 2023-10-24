@@ -28,8 +28,7 @@
     Request Body: JSON object representing the updated todo item.
     Response: 200 OK if the todo item was found and updated, or 404 Not Found if not found.
     Example: PUT http://localhost:3000/todos/123
-    Request Body: { "title": "Buy groceries", "completed": true }
-    
+    Request Body: { "title": "Buy groceries", "completed": true }]    
   5. DELETE /todos/:id - Delete a todo item by ID
     Description: Deletes a todo item identified by its ID.
     Response: 200 OK if the todo item was found and deleted, or 404 Not Found if not found.
@@ -42,8 +41,69 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const app = express();
+const fs = require("fs");
+const cors = require("cors")
 
+const app = express();
+const PORT = 3000;
 app.use(bodyParser.json());
+
+app.use(cors())
+
+function update_file(){
+  fs.writeFile("files/a.txt",todos,(err)=>{
+
+  })
+}
+
+var todos = []
+
+app.get("/todos",(req,res)=>{
+  let list1 = []
+  todos.forEach((el,ind)=>{
+    list1.push({
+      "id": ind,
+      "title": el.title,
+      "completed": el.completed,
+      "description": el.description
+    })
+  })
+  res.send(list1);
+})
+
+app.get("/todos/:id",(req,res)=>{
+  console.log(req.params.id);
+  res.send(todos[req.params.id] || [])
+})
+
+app.post("/todos",(req,res)=>{
+  console.log(req.body)
+  const given = req.body;
+  todos.push(given);
+  console.log(todos)
+  let id = todos.length-1;
+  res.send({"id":id})
+})
+
+app.put("/todos/:id", (req,res)=>{
+  todos.splice(req.params.id,1,req.body);
+  res.send(todos);
+})
+
+app.delete("/todos/:id", (req,res)=>{
+  todos.splice(req.query.params,1);
+  res.send(todos);
+})
+
+app.listen(PORT,(req,res)=>{
+  //get from file
+  // fs.readFile("files/a.txt","utf-8",(err,data)=>{
+  //   data.forEach((el)=>{
+  //     todos.push(el)
+  //   })
+  // })
+  console.log("server started at port",PORT);
+})
+
 
 module.exports = app;
